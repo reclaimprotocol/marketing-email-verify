@@ -153,7 +153,7 @@ export async function POST(req) {
   } catch (error) {
     console.error('Error:', error);
     return NextResponse.json(
-      { error: 'Error processing verification request' },
+      { error: error.message },
       { status: 500 }
     );
   }

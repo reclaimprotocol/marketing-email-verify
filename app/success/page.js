@@ -27,10 +27,12 @@ function SuccessContent() {
             setStatus('success');
             setProofId(data.proofId);
           } else {
+            console.error('Error sending verification request:', data.error);
             setStatus('error');
           }
         })
-        .catch(() => {
+        .catch((error) => {
+          console.error('Error sending verification request:', error);
           setStatus('error');
         });
     }
