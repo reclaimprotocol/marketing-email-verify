@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { storeProofRequest } from '@/app/utils/storage';
 import { sendEmail } from '@/app/utils/email';
 const { ReclaimProofRequest, verifyProof } = require('@reclaimprotocol/js-sdk');
+import { providerDescriptions } from '@/app/utils/providerDescriptions'; 
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 const providers = {
@@ -11,13 +12,6 @@ const providers = {
   yc: "a4c9fb77-6a4b-40ee-a850-98e4d41a89a6",
   accredited_investor: "3bfad093-4da8-44d6-a362-123750a70d40",
   binance_kyc: "2b22db5c-78d9-4d82-84f0-a9e0a4ed0470",
-}
-
-const verificationTypes = {
-  github: "GitHub username",
-  yc: "Y Combinator alum status",
-  accredited_investor: "Accredited investor status in USA",
-  binance_kyc: "Binance KYC status"
 }
 
 export async function POST(req) {
@@ -32,16 +26,22 @@ export async function POST(req) {
     }
 
     const { targetEmail, senderEmail, message, verificationType } = session.metadata;
-    console.log(targetEmail, senderEmail, message, verificationType);
+    console.log(session.metadata);
+    var providerId = session.metadata.providerId;
+    console.log("Sending verification for", targetEmail, senderEmail, message, verificationType, providerId);
 
+    if(verificationType != "provider_id") {
+      providerId = providers[verificationType];
+    }
+    console.log(providerId);
     // Here you would implement your verification logic based on verificationType
-    if(providers[verificationType]) {
+    if(providerId) {
 
       // Generate a unique ID for this proof request
       const proofId = uuidv4();
 
       console.log(process.env.RECLAIM_APPLICATION_ID, process.env.RECLAIM_SECRET, providers[verificationType]);
-      const proofRequest = await ReclaimProofRequest.init(process.env.RECLAIM_APPLICATION_ID, process.env.RECLAIM_SECRET, "6d3f6753-7ee6-49ee-a545-62f1b1822ae5");
+      const proofRequest = await ReclaimProofRequest.init(process.env.RECLAIM_APPLICATION_ID, process.env.RECLAIM_SECRET, providerId);
       proofRequest.addContext("0x0", proofId);
       proofRequest.setAppCallbackUrl(process.env.NEXT_PUBLIC_BASE_URL + "/api/reclaim-callback");
       console.log(proofRequest);
@@ -53,6 +53,7 @@ export async function POST(req) {
         senderEmail,
         message,
         verificationType,
+        providerId,
         createdAt: new Date().toISOString()
       });
 
@@ -64,7 +65,7 @@ export async function POST(req) {
           </h1>
   
           <div style="margin-bottom: 1.5rem;">
-            <p> ${senderEmail} is requesting to verify ${verificationTypes[verificationType]}.</p>
+            <p> ${senderEmail} is requesting to verify ${providerDescriptions[verificationType]}.</p>
           </div>
   
           <div style="margin-bottom: 1.5rem;">
@@ -94,7 +95,7 @@ export async function POST(req) {
       await sendEmail({
         to: targetEmail,
         subject: 'Verification Request',
-        body: `${senderEmail} is requesting to verify ${verificationTypes[verificationType]}.\n\nMessage from the requester: ${message}\n\nPlease click the link below to verify:\n${process.env.NEXT_PUBLIC_BASE_URL}/open?id=${proofId}`,
+        body: `${senderEmail} is requesting to verify ${providerDescriptions[verificationType]}.\n\nMessage from the requester: ${message}\n\nPlease click the link below to verify:\n${process.env.NEXT_PUBLIC_BASE_URL}/open?id=${proofId}`,
         html: verificationRequestEmailHtml
       });
   
@@ -107,7 +108,7 @@ export async function POST(req) {
           </h1>
   
           <div style="margin-bottom: 1.5rem;">
-            <p> ${targetEmail} has been requested to verify ${verificationTypes[verificationType]}. You will receive an email once they complete the verification.</p>
+            <p> ${targetEmail} has been requested to verify ${providerDescriptions[verificationType]}. You will receive an email once they complete the verification.</p>
           </div>
   
           <div style="margin-bottom: 1.5rem;">

@@ -2,15 +2,8 @@
 
 import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
+import { providerDescriptions } from '../utils/providerDescriptions';
 
-const verificationTypes = {
-  github: "GitHub username",
-  yc: "YCombinator alumni status",
-  accredited_investor: "Accredited investor status in USA",
-  binance_kyc: "Binance KYC status",
-  university: "University education",
-  work: "Work history"
-};
 
 function StatusContent() {
   const [status, setStatus] = useState('loading');
@@ -120,7 +113,7 @@ function StatusContent() {
               </div>
               <div>
                 <h3 className="text-sm font-medium text-gray-500">Verification Type</h3>
-                <p className="mt-1 text-sm text-gray-900">{verificationTypes[requestDetails.verificationType]}</p>
+                <p className="mt-1 text-sm text-gray-900">{providerDescriptions[requestDetails.verificationType]}</p>
               </div>
               {requestDetails.message && (
                 <div>

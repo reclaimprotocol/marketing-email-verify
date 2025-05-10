@@ -6,7 +6,9 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 export async function POST(req) {
   try {
     const body = await req.json();
-    const { targetEmail, senderEmail, message, verificationType } = body;
+    const { targetEmail, senderEmail, message, verificationType, providerId } = body;
+
+    console.log("Creating checkout session for", targetEmail, senderEmail, message, verificationType, providerId);
 
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
@@ -16,7 +18,7 @@ export async function POST(req) {
             currency: 'usd',
             product_data: {
               name: 'Credential Verification',
-              description: `Verification request for ${verificationType}`,
+              description: `Requesting verification from ${targetEmail}`,
             },
             unit_amount: 1000, 
           },
@@ -31,6 +33,7 @@ export async function POST(req) {
         senderEmail,
         message,
         verificationType,
+        providerId,
       },
     });
 

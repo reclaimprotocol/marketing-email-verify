@@ -12,6 +12,7 @@ export async function storeProofRequest(uuid, proofRequest) {
       senderEmail: proofRequest.senderEmail,
       message: proofRequest.message,
       verificationType: proofRequest.verificationType,
+      providerId: proofRequest.providerId,
     });
 
     await newProofRequest.save();

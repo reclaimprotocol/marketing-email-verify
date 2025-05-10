@@ -44,7 +44,8 @@ export async function GET(req) {
         proofRequest: proofRequest.proofRequest,
         verificationStatus: proofRequest.verificationStatus,
         verificationResult: (proofRequest.verificationResult && proofRequest.verificationResult.claimData)? JSON.parse(proofRequest.verificationResult.claimData.context)["extractedParameters"] : null,
-        verifiedAt: proofRequest.verifiedAt
+        verifiedAt: proofRequest.verifiedAt,
+        providerId: proofRequest.providerId
       }
     });
   } catch (error) {

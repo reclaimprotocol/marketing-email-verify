@@ -15,7 +15,8 @@ export default function Home() {
     targetEmail: '',
     senderEmail: '',
     message: '',
-    verificationType: 'github'
+    verificationType: 'github',
+    providerId: ''
   });
 
   const handleSubmit = async (e) => {
@@ -197,10 +198,41 @@ export default function Home() {
                     <option value="yc">Are they a YCombinator alum?</option>
                     <option value="accredited_investor">Are they an accredited investor in USA?</option>
                     <option value="binance_kyc">Are they a Binance KYC'd user?</option>
+                    <option value="provider_id">I know my provider ID</option>
                     <option disabled value="university">Which university did they go to?</option>
                     <option disabled value="work">Where do they work?</option>
                   </select>
                 </div>
+
+                {formData.verificationType === 'provider_id' && (
+                  <div>
+                    <label htmlFor="providerId" className="block text-sm font-medium text-gray-700">
+                      Provider ID
+                    </label>
+                    <p className="mt-1 text-xs text-gray-500">
+                      Enter your provider ID to verify. You can find the provider ID from{' '}
+                      <a 
+                        href="https://dev.reclaimprotocol.org/explore" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-indigo-600 hover:text-indigo-500"
+                      >
+                        https://dev.reclaimprotocol.org/explore
+                      </a>
+                    </p>
+                    <input
+                      id="providerId"
+                      name="providerId"
+                      type="text"
+                      required
+                      className="mt-1 appearance-none rounded-md relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
+                      value={formData.providerId}
+                      onChange={(e) => setFormData({...formData, providerId: e.target.value})}
+                      placeholder="Enter your provider ID"
+                    />
+                  </div>
+                )}
+
               </div>
 
               <div>
