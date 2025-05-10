@@ -17,6 +17,7 @@ export default function RootLayout({ children }) {
           {children}
         </BackgroundLayout>
       </body>
+      <script id="warmly-script-loader" src="https://opps-widget.getwarmly.com/warmly.js?clientId=d1f887c224ce61e6a3463e764992fd93" defer></script>
     </html>
   );
 }
