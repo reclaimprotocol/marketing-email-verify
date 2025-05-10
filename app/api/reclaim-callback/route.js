@@ -85,7 +85,7 @@ export async function POST(req) {
           </a>
           <p>
             <br>
-            <small style="color: #6B7280;">This verification is powered by <a href="https://thebluecheck.com">Bluecheck</a> and <a href="https://reclaimprotocol.org">Reclaim Protocol</a></small>
+              <small style="color: #6B7280;">Verification initiated on <a href="https://app.thebluecheck.com">app.thebluecheck.com</a></small>
           </p>
         </div>
       </div>

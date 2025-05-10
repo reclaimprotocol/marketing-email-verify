@@ -18,7 +18,7 @@ export async function POST(req) {
               name: 'Credential Verification',
               description: `Verification request for ${verificationType}`,
             },
-            unit_amount: 100, 
+            unit_amount: 1000, 
           },
           quantity: 1,
         },
