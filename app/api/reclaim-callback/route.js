@@ -94,7 +94,7 @@ export async function POST(req) {
 
     // Send email to target
     await sendEmail({
-      to: proofRequest.targetEmail,
+      to: proofRequest.senderEmail,
       subject: 'Verification Request',
       body: `Verification request completed by ${proofRequest.senderEmail}, check the result here : ${process.env.NEXT_PUBLIC_BASE_URL}/status?id=${proofRequest.id}`,
       html: verificationResultEmailHtml
