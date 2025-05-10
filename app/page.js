@@ -4,6 +4,10 @@ import { useState } from 'react';
 import { loadStripe } from '@stripe/stripe-js';
 import Image from 'next/image';
 
+if (!process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY) {
+  throw new Error('Missing Stripe publishable key. Please add NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY to your environment variables.');
+}
+
 const stripePromise = loadStripe(process.env.NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY);
 
 export default function Home() {
