@@ -1,5 +1,17 @@
 import { SESClient, SendEmailCommand } from '@aws-sdk/client-ses';
 
+// Debug environment variables (safely)
+const debugEnvVars = {
+  AWS_REGION: process.env.AWS_REGION,
+  AWS_ACCESS_KEY_ID: process.env.AWS_ACCESS_KEY_ID ? `${process.env.AWS_ACCESS_KEY_ID.substring(0, 4)}...` : 'not set',
+  AWS_SECRET_ACCESS_KEY: process.env.AWS_SECRET_ACCESS_KEY ? 'set' : 'not set',
+  SES_FROM_EMAIL: process.env.SES_FROM_EMAIL,
+  NODE_ENV: process.env.NODE_ENV,
+  VERCEL_ENV: process.env.VERCEL_ENV,
+};
+
+console.log('Environment Variables Status:', debugEnvVars);
+
 // Validate required environment variables
 const requiredEnvVars = {
   AWS_REGION: process.env.AWS_REGION,
@@ -14,6 +26,7 @@ const missingEnvVars = Object.entries(requiredEnvVars)
   .map(([key]) => key);
 
 if (missingEnvVars.length > 0) {
+  console.error('Missing environment variables:', missingEnvVars);
   throw new Error(
     `Missing required environment variables: ${missingEnvVars.join(', ')}. Please add them to your environment configuration.`
   );
@@ -77,28 +90,30 @@ export async function sendEmail({ to, subject, body, html }) {
       errorCode: error.code,
       requestId: error.$metadata?.requestId,
       region: process.env.AWS_REGION,
+      environment: process.env.NODE_ENV,
+      vercelEnv: process.env.VERCEL_ENV,
     });
 
     // Handle specific AWS credential errors
     if (error.name === 'InvalidSignatureException' || error.message.includes('security token')) {
       throw new Error(
-        `${process.env.AWS_REGION} : AWS credentials are invalid. Please check your AWS_ACCESS_KEY_ID (${process.env.AWS_ACCESS_KEY_ID.substring(0, 3)}...) and AWS_SECRET_ACCESS_KEY (${process.env.AWS_SECRET_ACCESS_KEY.substring(0, 3)}...) in your environment variables.`
+        `${process.env.AWS_REGION} : AWS credentials are invalid. Please check your AWS_ACCESS_KEY_ID (${process.env.AWS_ACCESS_KEY_ID.substring(0, 3)}...) and AWS_SECRET_ACCESS_KEY in your environment variables. Environment: ${process.env.NODE_ENV}, Vercel Env: ${process.env.VERCEL_ENV}`
       );
     }
 
     if (error.name === 'AccessDeniedException') {
       throw new Error(
-        `${process.env.AWS_REGION} : AWS credentials do not have permission to send emails. Please ensure your IAM user has SES permissions.`
+        `${process.env.AWS_REGION} : AWS credentials do not have permission to send emails. Please ensure your IAM user has SES permissions. Environment: ${process.env.NODE_ENV}, Vercel Env: ${process.env.VERCEL_ENV}`
       );
     }
 
     if (error.name === 'InvalidClientTokenId') {
       throw new Error(
-        `${process.env.AWS_REGION} : Invalid AWS Access Key ID (${process.env.AWS_ACCESS_KEY_ID.substring(0, 3)}...). Please check your AWS_ACCESS_KEY_ID in your environment variables.`
+        `${process.env.AWS_REGION} : Invalid AWS Access Key ID (${process.env.AWS_ACCESS_KEY_ID.substring(0, 3)}...). Please check your AWS_ACCESS_KEY_ID in your environment variables. Environment: ${process.env.NODE_ENV}, Vercel Env: ${process.env.VERCEL_ENV}`
       );
     }
 
-    throw new Error(`Failed to send email: ${error.message} | region: ${process.env.AWS_REGION}, ${process.env.AWS_ACCESS_KEY_ID.substring(0, 3)}..., ${process.env.AWS_SECRET_ACCESS_KEY.substring(0, 3)}...`);
+    throw new Error(`Failed to send email: ${error.message} | region: ${process.env.AWS_REGION}, environment: ${process.env.NODE_ENV}, vercelEnv: ${process.env.VERCEL_ENV}`);
   }
 }
 

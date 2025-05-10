@@ -5,8 +5,8 @@ import BackgroundLayout from './components/BackgroundLayout';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata = {
-  title: 'Email Verification',
-  description: 'Verify your email address securely',
+  title: 'Bluecheck Verification over Email',
+  description: 'Send a request to verify your users\' credentials over email',
 };
 
 export default function RootLayout({ children }) {
