@@ -14,10 +14,10 @@ const providers = {
 }
 
 const verificationTypes = {
-  github: "your GitHub username",
-  yc: "if you are a Y Combinator alum",
-  accredited_investor: "if you are an accredited investor in USA",
-  binance_kyc: "if you are a Binance KYC'd user"
+  github: "GitHub username",
+  yc: "Y Combinator alum status",
+  accredited_investor: "Accredited investor status in USA",
+  binance_kyc: "Binance KYC status"
 }
 
 export async function POST(req) {

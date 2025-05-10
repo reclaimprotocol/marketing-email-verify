@@ -19,6 +19,9 @@ if (missingEnvVars.length > 0) {
   );
 }
 
+// Log the region being used (but not the credentials)
+console.log('Using AWS Region:', process.env.AWS_REGION);
+
 const sesClient = new SESClient({
   region: process.env.AWS_REGION,
   credentials: {
@@ -66,14 +69,36 @@ export async function sendEmail({ to, subject, body, html }) {
     };
   } catch (error) {
     console.error('Error sending email:', error);
+    
     // Log more detailed error information
     console.error('Error details:', {
       errorName: error.name,
       errorMessage: error.message,
       errorCode: error.code,
       requestId: error.$metadata?.requestId,
+      region: process.env.AWS_REGION,
     });
-    throw new Error(`Failed to send email: ${error.message}`);
+
+    // Handle specific AWS credential errors
+    if (error.name === 'InvalidSignatureException' || error.message.includes('security token')) {
+      throw new Error(
+        `${process.env.AWS_REGION} : AWS credentials are invalid. Please check your AWS_ACCESS_KEY_ID (${process.env.AWS_ACCESS_KEY_ID.substring(0, 3)}...) and AWS_SECRET_ACCESS_KEY (${process.env.AWS_SECRET_ACCESS_KEY.substring(0, 3)}...) in your environment variables.`
+      );
+    }
+
+    if (error.name === 'AccessDeniedException') {
+      throw new Error(
+        `${process.env.AWS_REGION} : AWS credentials do not have permission to send emails. Please ensure your IAM user has SES permissions.`
+      );
+    }
+
+    if (error.name === 'InvalidClientTokenId') {
+      throw new Error(
+        `${process.env.AWS_REGION} : Invalid AWS Access Key ID (${process.env.AWS_ACCESS_KEY_ID.substring(0, 3)}...). Please check your AWS_ACCESS_KEY_ID in your environment variables.`
+      );
+    }
+
+    throw new Error(`Failed to send email: ${error.message} | region: ${process.env.AWS_REGION}, ${process.env.AWS_ACCESS_KEY_ID.substring(0, 3)}..., ${process.env.AWS_SECRET_ACCESS_KEY.substring(0, 3)}...`);
   }
 }
 
