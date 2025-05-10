@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { verifyProof } from '@reclaimprotocol/js-sdk';
 import connectDB from '@/app/utils/mongoose';
 import ProofRequest from '@/app/models/ProofRequest';
+import { sendEmail } from '@/app/utils/email';
 
 export async function POST(req) {
   try {
@@ -53,7 +54,7 @@ export async function POST(req) {
     await proofRequest.save();
     console.log('Proof request updated with verification result', proofRequest);
 
-    const extractedParameters = JSON.parse(parsedBody.claimData.context)["extractedParams"];
+    const extractedParameters = JSON.parse(parsedBody.claimData.context)["extractedParameters"];
     console.log('Extracted parameters', extractedParameters);
 
 
@@ -78,9 +79,10 @@ export async function POST(req) {
         </div>
 
         <div style="text-align: center; margin-top: 2rem;">
-          <pre>
-            ${JSON.stringify(extractedParameters, null, 2)}
-          </pre>
+          <a href="${process.env.NEXT_PUBLIC_BASE_URL}/status?id=${id}" 
+              style="display: inline-block; background-color: #4F46E5; color: white; padding: 0.75rem 1.5rem; border-radius: 0.375rem; text-decoration: none; font-weight: 500; transition: background-color 0.2s;">
+            Check Status
+          </a>
           <p>
             <br>
             <small style="color: #6B7280;">This verification is powered by <a href="https://thebluecheck.com">Bluecheck</a> and <a href="https://reclaimprotocol.org">Reclaim Protocol</a></small>
@@ -91,12 +93,12 @@ export async function POST(req) {
     `;
 
     // Send email to target
-    /*await sendEmail({
+    await sendEmail({
       to: proofRequest.targetEmail,
       subject: 'Verification Request',
       body: `Verification request completed by ${proofRequest.senderEmail}, check the result here : ${process.env.NEXT_PUBLIC_BASE_URL}/status?id=${proofRequest.id}`,
       html: verificationResultEmailHtml
-    });*/
+    });
 
 
     return NextResponse.json({

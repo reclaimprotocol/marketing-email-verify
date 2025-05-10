@@ -10,7 +10,7 @@ const sesClient = new SESClient({
 
 export async function sendEmail({ to, subject, body, html }) {
   const params = {
-    Source: process.env.SES_FROM_EMAIL,
+    Source: `Bluecheck Verification <${process.env.SES_FROM_EMAIL}>`,
     Destination: {
       ToAddresses: [to],
     },
