@@ -1,10 +1,11 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { QRCodeSVG } from 'qrcode.react';
 import { ReclaimProofRequest } from '@reclaimprotocol/js-sdk';
-export default function OpenVerification() {
+
+function OpenVerificationContent() {
   const [proofRequest, setProofRequest] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -75,7 +76,7 @@ export default function OpenVerification() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <h2 className="text-2xl font-semibold mb-4">Loading verification request...</h2>
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto"></div>
@@ -159,7 +160,6 @@ export default function OpenVerification() {
                 </div>
               )}
 
-
               {requestUrl && (
                 <div className="mt-8">
                   <h2 className="text-lg font-medium text-gray-900 mb-4">Verification Link</h2>
@@ -167,6 +167,11 @@ export default function OpenVerification() {
                     <div className="flex flex-col items-center">
                       <div className="text-green-500 text-6xl mb-4">✓</div>
                       <p className="text-gray-900 mb-4">Verification complete. Information has been shared with the sender</p>
+                      {proofData && (
+                        <pre className="bg-gray-100 p-4 rounded-lg w-full overflow-x-auto">
+                          {JSON.stringify(proofData, null, 2)}
+                        </pre>
+                      )}
                     </div>
                   ) : verificationStatus === 'error' ? (
                     <div className="flex flex-col items-center">
@@ -209,5 +214,20 @@ export default function OpenVerification() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function OpenVerification() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="max-w-md w-full p-8 bg-white rounded-lg shadow-lg text-center">
+          <h2 className="text-2xl font-semibold mb-4">Loading...</h2>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto"></div>
+        </div>
+      </div>
+    }>
+      <OpenVerificationContent />
+    </Suspense>
   );
 } 

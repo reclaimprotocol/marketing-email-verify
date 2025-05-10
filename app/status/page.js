@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 
 const verificationTypes = {
@@ -12,7 +12,7 @@ const verificationTypes = {
   work: "Work history"
 };
 
-export default function Status() {
+function StatusContent() {
   const [status, setStatus] = useState('loading');
   const [proofData, setProofData] = useState(null);
   const [requestDetails, setRequestDetails] = useState(null);
@@ -144,5 +144,20 @@ export default function Status() {
         )}
       </div>
     </div>
+  );
+}
+
+export default function Status() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="max-w-md w-full p-8 bg-white rounded-lg shadow-lg text-center">
+          <h2 className="text-2xl font-semibold mb-4">Loading...</h2>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 mx-auto"></div>
+        </div>
+      </div>
+    }>
+      <StatusContent />
+    </Suspense>
   );
 } 
